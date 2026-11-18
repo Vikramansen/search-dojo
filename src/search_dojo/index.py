@@ -168,6 +168,10 @@ class InvertedIndex:
         """Cosine of log-tf * smooth idf. Rare words get a louder coordinate."""
         return self._cosine(query, self.tfidf_vectors, "tfidf", k)
 
+    def tfidf_score(self, query: str, doc_id: str) -> float:
+        """TF-IDF cosine between one query and one document."""
+        return _sparse_cosine(self._query_tfidf_vector(query), self.tfidf_vectors[doc_id])
+
     def _bm25_hit(self, query: str, doc_id: str, k1: float, b: float) -> Hit | None:
         score, parts = self.explain_bm25(query, doc_id, k1=k1, b=b)
         if score <= 0.0:

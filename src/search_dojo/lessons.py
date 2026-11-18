@@ -9,6 +9,7 @@ from rich.console import Console
 from search_dojo.archive import Archive, build_archive
 from search_dojo.index import InvertedIndex
 from search_dojo.lesson_eval import run_eval
+from search_dojo.lesson_ltr import run_ltr
 from search_dojo.lesson_text import run_text
 from search_dojo.metrics import recall_at_k, score_run
 from search_dojo.types import Hit
@@ -18,17 +19,30 @@ from search_dojo.white import run_white
 LessonFn = Callable[[Console, Archive, float | None, float | None], None]
 DojoLessonFn = Callable[..., None]
 
-BELT_ORDER = ("white", "text", "yellow", "eval", "green", "blue", "brown", "black", "sensei")
+BELT_ORDER = (
+    "white",
+    "text",
+    "yellow",
+    "eval",
+    "green",
+    "blue",
+    "brown",
+    "ltr",
+    "black",
+    "sensei",
+)
 
 DOJO_LESSONS: dict[str, DojoLessonFn] = {
     "text": run_text,
     "eval": run_eval,
+    "ltr": run_ltr,
 }
 
 BELT_BLURB = {
     "white": "Tokens, tf, df, idf, tf-idf, cosine. Every number by hand.",
     "text": "Query understanding: edit distance, synonyms, Naive Bayes intent, autocomplete.",
     "eval": "Judgments, P@k, MRR, MAP, NDCG by hand, and a paired bootstrap.",
+    "ltr": "Learning to rank: 7 features, ridge, RankNet, LambdaRank, ablation.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",
