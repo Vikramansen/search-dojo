@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import sys
+
 import typer
 from rich.console import Console
+from rich.prompt import Prompt
+from rich.table import Table
 
 from search_dojo.archive import RETRIEVERS, build_archive
+from search_dojo.interact import load_progress
 from search_dojo.lessons import BELT_BLURB, BELT_ORDER, run_lesson, show_boss, show_logs
 from search_dojo.logsetup import configure_logging
-from search_dojo.view import hits_table, simple_table
+from search_dojo.syllabus import show_syllabus
+from search_dojo.view import hits_table
 
 app = typer.Typer(
     add_completion=False,
@@ -20,24 +26,70 @@ console = Console()
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context) -> None:
-    """Open the dojo. With no subcommand, list the belts."""
+    """Open the dojo. With no subcommand, show the menu."""
     configure_logging()
-    if ctx.invoked_subcommand is None:
+    if ctx.invoked_subcommand is not None:
+        return
+    belts()
+    if not (console.is_interactive and sys.stdin.isatty()):
+        return
+    while True:
+        choice = (
+            Prompt.ask(
+                "\nLesson number or name, [bold]s[/bold] for syllabus, [bold]q[/bold] to quit",
+                default=_next_lesson(),
+                console=console,
+            )
+            .strip()
+            .lower()
+        )
+        if choice in ("q", "quit", "exit"):
+            return
+        if choice in ("s", "syllabus"):
+            show_syllabus(console, BELT_ORDER)
+            continue
+        name = (
+            BELT_ORDER[int(choice) - 1]
+            if choice.isdigit() and 0 < int(choice) <= len(BELT_ORDER)
+            else choice
+        )
+        try:
+            run_lesson(console, name)
+        except KeyError as exc:
+            console.print(f"[red]{exc}[/red]")
+            continue
         belts()
+
+
+def _next_lesson() -> str:
+    done = load_progress()
+    return next((name for name in BELT_ORDER if name not in done), BELT_ORDER[0])
 
 
 @app.command()
 def belts() -> None:
-    """List the belts in order."""
+    """List the lessons in order, with your progress."""
     configure_logging()
     console.print("[bold]SEARCH DOJO[/bold]  relevance is a contact sport\n")
-    simple_table(
-        console,
-        "Belts",
-        ["belt", "lesson"],
-        [[belt, BELT_BLURB[belt]] for belt in BELT_ORDER],
-    )
-    console.print("\nNext:  [bold]uv run search-dojo lesson white[/bold]")
+    done = load_progress()
+    table = Table(header_style="bold", title="Lessons")
+    table.add_column("#", justify="right")
+    table.add_column("lesson")
+    table.add_column("what you learn")
+    table.add_column("quiz", justify="right")
+    for number, name in enumerate(BELT_ORDER, start=1):
+        score = done.get(name)
+        mark = f"[green]✓ {score['correct']}/{score['asked']}[/green]" if score else ""
+        table.add_row(str(number), name, BELT_BLURB[name], mark)
+    console.print(table)
+    console.print(f"\nNext:  [bold]uv run search-dojo lesson {_next_lesson()}[/bold]")
+
+
+@app.command()
+def syllabus() -> None:
+    """Map the role's topics to lessons, plus a reading list and case studies."""
+    configure_logging()
+    show_syllabus(console, BELT_ORDER)
 
 
 @app.command()

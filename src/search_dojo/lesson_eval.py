@@ -352,7 +352,7 @@ def _step_online(console: Console) -> None:
         "what you showed. The standard loop: iterate offline, ship the winners to an A/B test "
         "or interleaving experiment (lesson online), and check that offline gains predicted "
         "online gains.\n\n"
-        "[bold]Next[/bold]  uv run search-dojo lesson ltr"
+        "[bold]Next[/bold]  uv run search-dojo lesson green"
     )
 
 

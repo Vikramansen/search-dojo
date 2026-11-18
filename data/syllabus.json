@@ -1,0 +1,41 @@
+{
+  "role": [
+    {"topic": "Search relevance engineering and its impact on question-answering platforms", "lessons": ["white", "yellow", "eval", "llm", "sensei"]},
+    {"topic": "Using LLMs in a search system", "lessons": ["llm", "black"]},
+    {"topic": "IR techniques and ML-based ranking models", "lessons": ["white", "yellow", "green", "ann", "blue", "brown", "ltr"]},
+    {"topic": "Text processing, NLP, ML, retrieval and ranking", "lessons": ["white", "text", "green", "ltr"]},
+    {"topic": "Query log analysis", "lessons": ["clicks", "text", "sensei"]},
+    {"topic": "Ranking feature development and optimization", "lessons": ["brown", "ltr", "online"]},
+    {"topic": "Recent advances (prep tip)", "lessons": ["llm", "ann", "green"]},
+    {"topic": "Traditional and modern IR, including generative AI (prep tip)", "lessons": ["white", "yellow", "green", "llm"]}
+  ],
+  "reading": [
+    {"lesson": "white", "title": "Introduction to Information Retrieval, chapters 1, 2, 6 and 8", "authors": "Manning, Raghavan, Schütze", "year": 2008},
+    {"lesson": "yellow", "title": "The Probabilistic Relevance Framework: BM25 and Beyond", "authors": "Robertson, Zaragoza", "year": 2009},
+    {"lesson": "eval", "title": "Cumulated gain-based evaluation of IR techniques", "authors": "Järvelin, Kekäläinen", "year": 2002},
+    {"lesson": "green", "title": "Dense Passage Retrieval for Open-Domain Question Answering", "authors": "Karpukhin et al.", "year": 2020},
+    {"lesson": "green", "title": "ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT", "authors": "Khattab, Zaharia", "year": 2020},
+    {"lesson": "green", "title": "SPLADE: Sparse Lexical and Expansion Model for First Stage Ranking", "authors": "Formal, Piwowarski, Clinchant", "year": 2021},
+    {"lesson": "green", "title": "BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models", "authors": "Thakur et al.", "year": 2021},
+    {"lesson": "ann", "title": "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs", "authors": "Malkov, Yashunin", "year": 2018},
+    {"lesson": "ann", "title": "Product Quantization for Nearest Neighbor Search", "authors": "Jégou, Douze, Schmid", "year": 2011},
+    {"lesson": "blue", "title": "Reciprocal Rank Fusion outperforms Condorcet and individual Rank Learning Methods", "authors": "Cormack, Clarke, Büttcher", "year": 2009},
+    {"lesson": "brown", "title": "Passage Re-ranking with BERT", "authors": "Nogueira, Cho", "year": 2019},
+    {"lesson": "ltr", "title": "From RankNet to LambdaRank to LambdaMART: An Overview", "authors": "Burges", "year": 2010},
+    {"lesson": "clicks", "title": "Optimizing Search Engines using Clickthrough Data", "authors": "Joachims", "year": 2002},
+    {"lesson": "clicks", "title": "Unbiased Learning-to-Rank with Biased Feedback", "authors": "Joachims, Swaminathan, Schnabel", "year": 2017},
+    {"lesson": "online", "title": "How Does Clickthrough Data Reflect Retrieval Quality? (team-draft interleaving)", "authors": "Radlinski, Kurup, Joachims", "year": 2008},
+    {"lesson": "online", "title": "Trustworthy Online Controlled Experiments", "authors": "Kohavi, Tang, Xu", "year": 2020},
+    {"lesson": "llm", "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", "authors": "Lewis et al.", "year": 2020},
+    {"lesson": "llm", "title": "Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE)", "authors": "Gao, Ma, Lin, Callan", "year": 2022},
+    {"lesson": "llm", "title": "Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents (RankGPT)", "authors": "Sun et al.", "year": 2023},
+    {"lesson": "llm", "title": "Large language models can accurately predict searcher preferences", "authors": "Thomas, Spielman, Craswell, Mitra", "year": 2024}
+  ],
+  "cases": [
+    {"name": "Airbnb: Applying Deep Learning to Airbnb Search", "year": 2019, "lessons": ["ltr", "online"], "takeaway": "Moving from gradient boosted trees to neural rankers; most gains came from features, data and evaluation discipline, not architecture."},
+    {"name": "Google: BERT for understanding search queries", "year": 2019, "lessons": ["text", "green"], "takeaway": "A transformer reads the query in context (prepositions like 'to' and 'for' matter), applied first to a share of English queries."},
+    {"name": "Amazon: Semantic Product Search", "year": 2019, "lessons": ["green", "ann", "blue"], "takeaway": "A two-tower model trained on purchase data retrieves products that lexical matching misses; combined with lexical retrieval."},
+    {"name": "Spotify: natural language search for podcast episodes", "year": 2022, "lessons": ["green", "ann"], "takeaway": "Dense retrieval with a fine-tuned multilingual encoder, served with ANN alongside the existing lexical search."},
+    {"name": "Bing: LLMs as relevance judges", "year": 2024, "lessons": ["llm", "eval"], "takeaway": "Carefully prompted LLM labels matched searcher preferences about as well as human raters and were used at scale."}
+  ]
+}

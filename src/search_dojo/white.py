@@ -413,7 +413,7 @@ def _step_limits(console: Console, index: InvertedIndex) -> None:
         '  uv run search-dojo lesson white --no-pause --query "chennai whistle"\n'
         "  Add a line to data/dojo_db.jsonl and watch df and idf change.\n"
         "[bold]Read[/bold]  src/search_dojo/index.py  (smooth_idf, tfidf_cosine)\n"
-        "[bold]Next[/bold]  uv run search-dojo lesson yellow"
+        "[bold]Next[/bold]  uv run search-dojo lesson text"
     )
 
 
