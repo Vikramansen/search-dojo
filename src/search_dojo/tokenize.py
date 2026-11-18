@@ -96,12 +96,22 @@ STOP = frozenset(
 NEGATIONS = frozenset({"not", "no", "never", "without"})
 
 
-def stem(token: str) -> str:
-    """Strip a trailing plural ``s`` from longer tokens.
+# Plural "es" after a sibilant: punishes -> punish, boxes -> box. "bones" does
+# not match these endings, so it still loses only the final s.
+_ES_PLURAL = ("shes", "ches", "sses", "xes", "zes")
 
-    ``bones`` becomes ``bone``. ``class`` stays ``class``. This is a teaching
-    stemmer, not a claim about English.
+
+def stem(token: str) -> str:
+    """Strip a simple plural ending.
+
+    ``bones`` becomes ``bone``. ``punishes`` becomes ``punish``. ``class``
+    stays ``class``. This is a teaching stemmer, not a claim about English.
     """
+    if len(token) > 4 and token.endswith("ies"):
+        return token[:-3] + "y"
+    for ending in _ES_PLURAL:
+        if len(token) > len(ending) + 1 and token.endswith(ending):
+            return token[:-2]
     if len(token) > 4 and token.endswith("s") and not token.endswith("ss"):
         return token[:-1]
     return token

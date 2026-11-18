@@ -8,6 +8,10 @@ def test_stem_strips_plural_s_and_keeps_ss() -> None:
     assert stem("hours") == "hour"
     assert stem("class") == "class"
     assert stem("sku1844") == "sku1844"
+    assert stem("punishes") == "punish"
+    assert stem("saturates") == "saturate"
+    assert stem("queries") == "query"
+    assert stem("amplifies") == "amplify"
 
 
 def test_negation_drops_the_following_content_word() -> None:
