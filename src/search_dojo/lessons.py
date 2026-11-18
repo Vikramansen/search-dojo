@@ -8,17 +8,27 @@ from rich.console import Console
 
 from search_dojo.archive import Archive, build_archive
 from search_dojo.index import InvertedIndex
+from search_dojo.lesson_eval import run_eval
+from search_dojo.lesson_text import run_text
 from search_dojo.metrics import recall_at_k, score_run
 from search_dojo.types import Hit
 from search_dojo.view import belt_panel, hits_table, simple_table
 from search_dojo.white import run_white
 
 LessonFn = Callable[[Console, Archive, float | None, float | None], None]
+DojoLessonFn = Callable[..., None]
 
-BELT_ORDER = ("white", "yellow", "green", "blue", "brown", "black", "sensei")
+BELT_ORDER = ("white", "text", "yellow", "eval", "green", "blue", "brown", "black", "sensei")
+
+DOJO_LESSONS: dict[str, DojoLessonFn] = {
+    "text": run_text,
+    "eval": run_eval,
+}
 
 BELT_BLURB = {
     "white": "Tokens, tf, df, idf, tf-idf, cosine. Every number by hand.",
+    "text": "Query understanding: edit distance, synonyms, Naive Bayes intent, autocomplete.",
+    "eval": "Judgments, P@k, MRR, MAP, NDCG by hand, and a paired bootstrap.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",
@@ -44,6 +54,9 @@ def run_lesson(
     """
     if belt == "white":
         run_white(console, query=query, pause=pause)
+        return
+    if belt in DOJO_LESSONS:
+        DOJO_LESSONS[belt](console, pause=pause)
         return
     lessons: dict[str, LessonFn] = {
         "yellow": lesson_yellow,

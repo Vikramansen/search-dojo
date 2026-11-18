@@ -42,11 +42,11 @@ def belts() -> None:
 
 @app.command()
 def lesson(
-    belt: str = typer.Argument(help="white, yellow, green, blue, brown, black, or sensei."),
+    belt: str = typer.Argument(help="A lesson name from `search-dojo belts`."),
     k1: float | None = typer.Option(None, help="BM25 k1. Used by the yellow belt."),
     b: float | None = typer.Option(None, help="BM25 length penalty b. Used by the yellow belt."),
     query: str | None = typer.Option(None, help="Your own query for the white belt's step 7."),
-    pause: bool = typer.Option(True, help="Wait for Enter between steps (white belt)."),
+    pause: bool = typer.Option(True, help="Wait for Enter and ask the quizzes (Dojo DB lessons)."),
 ) -> None:
     """Run one belt."""
     configure_logging()
