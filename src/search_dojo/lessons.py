@@ -8,6 +8,7 @@ from rich.console import Console
 
 from search_dojo.archive import Archive, build_archive
 from search_dojo.index import InvertedIndex
+from search_dojo.lesson_ann import run_ann
 from search_dojo.lesson_clicks import run_clicks
 from search_dojo.lesson_eval import run_eval
 from search_dojo.lesson_ltr import run_ltr
@@ -27,6 +28,7 @@ BELT_ORDER = (
     "yellow",
     "eval",
     "green",
+    "ann",
     "blue",
     "brown",
     "ltr",
@@ -42,6 +44,7 @@ DOJO_LESSONS: dict[str, DojoLessonFn] = {
     "ltr": run_ltr,
     "clicks": run_clicks,
     "online": run_online,
+    "ann": run_ann,
 }
 
 BELT_BLURB = {
@@ -51,6 +54,7 @@ BELT_BLURB = {
     "ltr": "Learning to rank: 7 features, ridge, RankNet, LambdaRank, ablation.",
     "clicks": "Query logs, CTR, position bias, IPW, skip-above pairs.",
     "online": "A/B z-test, sample size, peeking, SRM, team-draft interleaving.",
+    "ann": "Vector search at scale: brute force, IVF, graph (HNSW idea), product quantization.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",
