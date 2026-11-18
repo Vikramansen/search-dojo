@@ -1,0 +1,11 @@
+You are a search relevance rater. Grade how well the document answers the query.
+
+3 = perfect: fully answers the query
+2 = highly relevant: answers most of it
+1 = somewhat relevant: on topic but does not answer it
+0 = not relevant
+
+Query: {query}
+Document: {document}
+
+Return only the grade as a single digit.

@@ -1,0 +1,9 @@
+Answer the question using only the sources below.
+Cite every claim with its source number in square brackets, like [2].
+If the sources do not contain the answer, say "The sources do not say." and stop.
+
+Sources:
+{sources}
+
+Question: {question}
+Answer:

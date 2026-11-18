@@ -1,0 +1,14 @@
+{
+  "_note": "Recorded stand-in outputs, written to look like typical LLM responses to the prompts in prompts/. The lesson runs offline; nothing here came from a live model.",
+  "rewrite": {
+    "csk comeback after ban": "csk comeback after ban chennai super kings returned suspension 2018",
+    "csk ipl titles": "csk ipl titles chennai super kings won five times",
+    "city": "city manchester city premier league guardiola",
+    "kevin passing": "kevin passing de bruyne assists manchester city"
+  },
+  "ungrounded_answer": "Chennai Super Kings have won the IPL four times, most recently in 2018 [1].",
+  "hyde": {
+    "vijay": "Vijay, known to fans as Thalapathy, is a Tamil film actor. His hit movies include Ghilli, Thuppakki, Mersal, Master, Beast and Leo. He later launched a political party.",
+    "csk comeback after ban": "Chennai Super Kings were suspended from the IPL for two years. They returned in 2018 and won the title in their first season back."
+  }
+}

@@ -11,6 +11,7 @@ from search_dojo.index import InvertedIndex
 from search_dojo.lesson_ann import run_ann
 from search_dojo.lesson_clicks import run_clicks
 from search_dojo.lesson_eval import run_eval
+from search_dojo.lesson_llm import run_llm
 from search_dojo.lesson_ltr import run_ltr
 from search_dojo.lesson_online import run_online
 from search_dojo.lesson_text import run_text
@@ -35,6 +36,7 @@ BELT_ORDER = (
     "clicks",
     "online",
     "black",
+    "llm",
     "sensei",
 )
 
@@ -45,6 +47,7 @@ DOJO_LESSONS: dict[str, DojoLessonFn] = {
     "clicks": run_clicks,
     "online": run_online,
     "ann": run_ann,
+    "llm": run_llm,
 }
 
 BELT_BLURB = {
@@ -55,6 +58,7 @@ BELT_BLURB = {
     "clicks": "Query logs, CTR, position bias, IPW, skip-above pairs.",
     "online": "A/B z-test, sample size, peeking, SRM, team-draft interleaving.",
     "ann": "Vector search at scale: brute force, IVF, graph (HNSW idea), product quantization.",
+    "llm": "LLMs in search: rewriting, HyDE, RAG, grounding, LLM-as-judge, cost.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",

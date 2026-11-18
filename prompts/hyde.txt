@@ -1,0 +1,4 @@
+Write a short factual passage, two or three sentences, that would answer this search query.
+Write it like an encyclopedia entry. It may contain mistakes; it is only used to find real documents.
+
+Query: {query}
