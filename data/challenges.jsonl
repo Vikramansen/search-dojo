@@ -1,0 +1,11 @@
+{"id": "easy-animal", "belt": "white", "query": "shy forest animal", "qrels": {"okapi-animal": 2}, "note": "An easy lexical hit. Every belt should clear this."}
+{"id": "easy-index", "belt": "white", "query": "inverted index posting list", "qrels": {"index-scroll": 2}, "note": "The definition scroll. Keywords are enough."}
+{"id": "okapi-trap", "belt": "yellow", "query": "okapi ranking function", "qrels": {"bm25-scroll": 2}, "note": "The animal shares the name. The function is the relevant scroll."}
+{"id": "fusion-exact", "belt": "yellow", "query": "reciprocal rank fusion", "qrels": {"rrf-scroll": 2, "hybrid-scroll": 1}, "note": "Exact name. The hybrid scroll is a cousin."}
+{"id": "spam-chant", "belt": "brown", "query": "milky pork bone soup", "qrels": {"tonkotsu": 2}, "note": "The chant repeats the words. The broth scroll is the answer."}
+{"id": "mixed-intent", "belt": "blue", "query": "sku1844 cloudy pig soup", "qrels": {"license-sku": 2, "tonkotsu": 2}, "note": "A permit code plus a paraphrase. Each retriever finds one."}
+{"id": "vocab-gap", "belt": "green", "query": "cloudy pig soup", "qrels": {"tonkotsu": 2}, "note": "The broth scroll shares none of these words until you expand or embed."}
+{"id": "phrase-broth", "belt": "black", "query": "opaque white broth", "qrels": {"tonkotsu": 2}, "note": "The phrase names the bowl."}
+{"id": "poison-prf", "belt": "black", "query": "milky soup", "qrels": {"tonkotsu": 1}, "note": "Weak relevance. The spill scroll is a trap for feedback."}
+{"id": "qa-rent", "belt": "sensei", "query": "wrong top scroll wrong answer", "qrels": {"qa-impact": 2}, "note": "Why the job exists."}
+{"id": "heldout-broth", "belt": "boss", "query": "cloudy pig bone stock", "qrels": {"tonkotsu": 2}, "note": "Held out as a full string. The pieces were practiced."}

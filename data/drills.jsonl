@@ -1,0 +1,29 @@
+{"query": "milky pork bone soup", "positive": "tonkotsu", "negatives": ["chant", "detergent", "dashi"]}
+{"query": "opaque white broth", "positive": "tonkotsu", "negatives": ["chant", "shoyu", "detergent"]}
+{"query": "cloudy pig soup", "positive": "tonkotsu", "negatives": ["chant", "miso", "detergent"]}
+{"query": "pig bones", "positive": "tonkotsu", "negatives": ["dashi", "miso", "chashu"]}
+{"query": "pork bone stock", "positive": "tonkotsu", "negatives": ["dashi", "chashu", "miso"]}
+{"query": "white broth", "positive": "tonkotsu", "negatives": ["detergent", "miso", "shoyu"]}
+{"query": "white pig soup", "positive": "tonkotsu", "negatives": ["chant", "detergent", "miso"]}
+{"query": "two towers share weights", "positive": "biencoder-scroll", "negatives": ["sparse-scroll", "index-scroll"]}
+{"query": "compare vectors with cosine", "positive": "biencoder-scroll", "negatives": ["bm25-scroll", "sparse-scroll"]}
+{"query": "slower sharper rerank", "positive": "cross-scroll", "negatives": ["biencoder-scroll", "sparse-scroll"]}
+{"query": "fuse two ranked lists", "positive": "hybrid-scroll", "negatives": ["bm25-scroll", "length-scroll"]}
+{"query": "reciprocal rank fusion", "positive": "rrf-scroll", "negatives": ["hybrid-scroll", "bm25-scroll"]}
+{"query": "boolean phrase posting lists", "positive": "expr-scroll", "negatives": ["expand-scroll", "prf-scroll"]}
+{"query": "terms a searcher left unsaid", "positive": "expand-scroll", "negatives": ["expr-scroll", "prf-scroll"]}
+{"query": "clicks and reformulations", "positive": "logs-scroll", "negatives": ["ndcg-scroll", "qa-impact"]}
+{"query": "graded discount buried hit", "positive": "ndcg-scroll", "negatives": ["logs-scroll", "features-scroll"]}
+{"query": "kelp bonito stock", "positive": "dashi", "negatives": ["tonkotsu", "miso"]}
+{"query": "unusual terms get a louder weight", "positive": "tfidf-scroll", "negatives": ["repeat-ramen", "shoyu"]}
+{"query": "most dimensions stay zero", "positive": "sparse-scroll", "negatives": ["biencoder-scroll", "cross-scroll"]}
+{"query": "posting list positions", "positive": "index-scroll", "negatives": ["sparse-scroll", "expr-scroll"]}
+{"query": "wrong top scroll wrong answer", "positive": "qa-impact", "negatives": ["llm-search", "ndcg-scroll"]}
+{"query": "models rewrite queries and draft answers", "positive": "llm-search", "negatives": ["qa-impact", "expand-scroll"]}
+{"query": "length penalty parameter b", "positive": "length-scroll", "negatives": ["repeat-ramen", "sparse-scroll"]}
+{"query": "paraphrases cross a vocabulary gap", "positive": "synonym-gap", "negatives": ["sparse-scroll", "index-scroll"]}
+{"query": "ablate a ranking feature", "positive": "features-scroll", "negatives": ["cross-scroll", "ndcg-scroll"]}
+{"query": "feedback amplifies a bad first pass", "positive": "prf-scroll", "negatives": ["expand-scroll", "detergent"]}
+{"query": "shy forest animal with zebra legs", "positive": "okapi-animal", "negatives": ["bm25-scroll", "license-sku"]}
+{"query": "soy sauce ramen bowl", "positive": "shoyu", "negatives": ["repeat-ramen", "tonkotsu"]}
+{"query": "barley tea permit crate", "positive": "license-sku", "negatives": ["tonkotsu", "dashi"]}

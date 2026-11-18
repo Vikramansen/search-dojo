@@ -1,0 +1,11 @@
+{"session": "night-01", "query": "white pig soup", "shown": 8, "click": null, "rank": null}
+{"session": "night-01", "query": "tonkotsu pork bone", "shown": 8, "click": "tonkotsu", "rank": 1}
+{"session": "night-02", "query": "okapi", "shown": 8, "click": "okapi-animal", "rank": 1}
+{"session": "night-03", "query": "okapi score", "shown": 8, "click": null, "rank": null}
+{"session": "night-03", "query": "okapi bm25", "shown": 8, "click": "bm25-scroll", "rank": 2}
+{"session": "night-04", "query": "quantum ramen", "shown": 0, "click": null, "rank": null}
+{"session": "night-05", "query": "cosine towers", "shown": 8, "click": "biencoder-scroll", "rank": 7}
+{"session": "night-06", "query": "permit crate", "shown": 8, "click": "license-sku", "rank": 1}
+{"session": "night-07", "query": "milky soup", "shown": 8, "click": null, "rank": null}
+{"session": "night-07", "query": "bleach spill", "shown": 8, "click": "detergent", "rank": 1}
+{"session": "night-08", "query": "fusion lists", "shown": 8, "click": "rrf-scroll", "rank": 3}
