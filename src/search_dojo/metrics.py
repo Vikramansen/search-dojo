@@ -47,6 +47,34 @@ def mrr(ranked_ids: list[str], qrels: dict[str, int]) -> float:
     return 0.0
 
 
+def precision_at_k(ranked_ids: list[str], qrels: dict[str, int], k: int) -> float:
+    """Fraction of the top ``k`` slots holding a relevant document (grade > 0).
+
+    Empty slots count against precision: the denominator is always ``k``.
+    """
+    if k <= 0:
+        raise ValueError("k must be positive")
+    return sum(1 for doc_id in ranked_ids[:k] if qrels.get(doc_id, 0) > 0) / k
+
+
+def average_precision(ranked_ids: list[str], qrels: dict[str, int]) -> float:
+    """Mean of precision@i at each rank i holding a relevant document.
+
+    Divides by the total number of relevant documents, so relevant documents
+    that were never retrieved pull AP down.
+    """
+    relevant = sum(1 for grade in qrels.values() if grade > 0)
+    if relevant == 0:
+        return 0.0
+    hits = 0
+    total = 0.0
+    for index, doc_id in enumerate(ranked_ids, start=1):
+        if qrels.get(doc_id, 0) > 0:
+            hits += 1
+            total += hits / index
+    return total / relevant
+
+
 def recall_at_k(ranked_ids: list[str], qrels: dict[str, int], k: int) -> float:
     """Fraction of relevant documents that landed in the top ``k``."""
     relevant = {doc_id for doc_id, grade in qrels.items() if grade > 0}

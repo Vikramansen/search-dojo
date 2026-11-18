@@ -1,0 +1,22 @@
+{"id": "q-curry-mvp", "text": "curry mvp", "qrels": {"curry-mvp": 3, "warriors-curry": 1, "warriors-dynasty": 1, "durant-joins": 1}}
+{"id": "q-warriors-record", "text": "warriors record season", "qrels": {"warriors-73": 3, "curry-mvp": 1, "klay-37": 1}}
+{"id": "q-haaland", "text": "haaland goals record", "qrels": {"haaland-record": 3, "city-treble": 2}}
+{"id": "q-city-ucl", "text": "city champions league final", "qrels": {"rodri-final": 3, "city-treble": 1}}
+{"id": "q-csk-titles", "text": "csk ipl titles", "qrels": {"csk-five-titles": 3, "csk-comeback": 2, "csk-dhoni": 2, "thala-dhoni": 1, "jadeja-2023": 1}}
+{"id": "q-jadeja", "text": "jadeja last ball final", "qrels": {"jadeja-2023": 3, "csk-dhoni": 1}}
+{"id": "q-pickle", "text": "pickle rick", "qrels": {"rick-pickle": 3}}
+{"id": "q-portal", "text": "rick portal dimension", "qrels": {"rick-portal": 3, "citadel": 2, "interdimensional-cable": 1}}
+{"id": "q-army", "text": "vijay army officer", "qrels": {"thuppakki": 3, "beast": 1}}
+{"id": "q-lcu", "text": "lokesh cinematic universe", "qrels": {"leo-lcu": 3, "vijay-leo": 2}}
+{"id": "q-kevin", "text": "kevin passing", "qrels": {"kdb-assists": 3, "pep-tactics": 1}}
+{"id": "q-warrior-friend", "text": "warrior friend", "qrels": {"birdperson": 3}}
+{"id": "q-finals-mvp", "text": "finals mvp", "qrels": {"durant-joins": 3, "curry-mvp": 1, "warriors-73": 1}}
+{"id": "q-csk-ban", "text": "csk comeback after ban", "qrels": {"csk-comeback": 3}}
+{"id": "q-nba-record", "text": "nba record", "qrels": {"klay-37": 3, "warriors-73": 2, "curry-mvp": 2}}
+{"id": "q-three", "text": "three pointers", "qrels": {"curry-mvp": 3, "warriors-curry": 2}}
+{"id": "q-city", "text": "city", "qrels": {"city-treble": 2, "city-four-in-a-row": 2, "rodri-final": 2, "haaland-record": 1, "kdb-assists": 1, "pep-tactics": 1}}
+{"id": "q-vijay", "text": "vijay", "qrels": {"thalapathy": 3, "vijay-leo": 2, "vijay-ghilli": 2, "thuppakki": 2, "mersal": 2, "beast": 2, "master": 2, "leo-lcu": 1}}
+{"id": "q-mall", "text": "chennai mall hijack", "qrels": {"beast": 3}}
+{"id": "q-politics", "text": "thalapathy politics", "qrels": {"thalapathy": 3}}
+{"id": "q-dhoni", "text": "dhoni", "qrels": {"thala-dhoni": 3, "csk-dhoni": 3, "csk-five-titles": 1}}
+{"id": "q-spin", "text": "spin bowling chennai", "qrels": {"chepauk-spin": 3}}
