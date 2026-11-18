@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import math
-import sys
 
 from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
 from search_dojo.index import InvertedIndex
+from search_dojo.interact import Session
 from search_dojo.minidb import MiniDoc, load_mini
 from search_dojo.tokenize import tokenize, trace_tokenize
 from search_dojo.view import belt_panel
@@ -19,22 +19,6 @@ DEFAULT_QUERY = "vijay mass"
 GAP_QUERY = "thalapathy"
 MATRIX_TERMS = ("whistle", "chennai", "win", "vijay", "mass", "rick", "goal")
 TOTAL_STEPS = 8
-
-
-class _Steps:
-    """Prints a header per step and, in a terminal, waits for Enter between steps."""
-
-    def __init__(self, console: Console, pause: bool) -> None:
-        self.console = console
-        self.pause = pause
-
-    def start(self, number: int, title: str) -> None:
-        if number > 1 and self.pause:
-            self.console.input(
-                f"\n[dim]Press Enter for step {number}/{TOTAL_STEPS}: {title}[/dim] "
-            )
-        self.console.print()
-        self.console.rule(f"[bold]Step {number}/{TOTAL_STEPS} · {title}[/bold]")
 
 
 def run_white(console: Console, *, query: str | None = None, pause: bool = True) -> None:
@@ -47,8 +31,7 @@ def run_white(console: Console, *, query: str | None = None, pause: bool = True)
     """
     docs = load_mini()
     index = InvertedIndex([(doc.id, doc.text) for doc in docs])
-    interactive = console.is_interactive and sys.stdin.isatty()
-    steps = _Steps(console, pause=pause and interactive)
+    steps = Session.start(console, "white", TOTAL_STEPS, pause)
 
     belt_panel(
         console,
@@ -60,22 +43,23 @@ def run_white(console: Console, *, query: str | None = None, pause: bool = True)
         "idf, tf-idf, and cosine similarity.",
     )
 
-    steps.start(1, "The database")
+    steps.step(1, "The database")
     _step_database(console, docs)
-    steps.start(2, "Tokenization: text to tokens")
+    steps.step(2, "Tokenization: text to tokens")
     _step_tokens(console, docs, index)
-    steps.start(3, "Term frequency (tf)")
+    steps.step(3, "Term frequency (tf)")
     _step_tf(console, docs, index)
-    steps.start(4, "Document frequency (df) and the inverted index")
-    _step_df(console, index)
-    steps.start(5, "Inverse document frequency (idf)")
-    _step_idf(console, index)
-    steps.start(6, "tf-idf: the weight of a term in a document")
-    _step_tfidf(console, index)
-    steps.start(7, "Running a query")
-    _step_query(console, docs, index, query or DEFAULT_QUERY)
-    steps.start(8, "Where tf-idf breaks")
+    steps.step(4, "Document frequency (df) and the inverted index")
+    _step_df(console, index, steps)
+    steps.step(5, "Inverse document frequency (idf)")
+    _step_idf(console, index, steps)
+    steps.step(6, "tf-idf: the weight of a term in a document")
+    _step_tfidf(console, index, steps)
+    steps.step(7, "Running a query")
+    _step_query(console, docs, index, query or DEFAULT_QUERY, steps)
+    steps.step(8, "Where tf-idf breaks")
     _step_limits(console, index)
+    steps.finish()
 
 
 def _step_database(console: Console, docs: list[MiniDoc]) -> None:
@@ -180,7 +164,7 @@ def _step_tf(console: Console, docs: list[MiniDoc], index: InvertedIndex) -> Non
     )
 
 
-def _step_df(console: Console, index: InvertedIndex) -> None:
+def _step_df(console: Console, index: InvertedIndex, steps: Session) -> None:
     console.print(
         "[bold]df(t)[/bold] = the number of documents that contain term t at least once.\n"
         "An [bold]inverted index[/bold] stores, for each term, its [bold]posting list[/bold]: "
@@ -196,13 +180,19 @@ def _step_df(console: Console, index: InvertedIndex) -> None:
         table.add_row(term, ", ".join(postings), str(index.df.get(term, 0)))
     console.print(table)
     whistle_tf = index.term_tf(SPOTLIGHT_DOC, "whistle")
+    steps.quiz(
+        f"whistle appears {whistle_tf} times in csk-whistle and nowhere else. What is df(whistle)?",
+        [str(whistle_tf), "1", str(index.n_docs)],
+        1,
+        "df counts documents, not occurrences.",
+    )
     console.print(
         f"whistle appears {whistle_tf} times, but all in one document, so df(whistle) = "
         f"{index.df['whistle']}. tf counts occurrences inside one document. df counts documents."
     )
 
 
-def _step_idf(console: Console, index: InvertedIndex) -> None:
+def _step_idf(console: Console, index: InvertedIndex, steps: Session) -> None:
     n_docs = index.n_docs
     console.print(
         "[bold]idf(t) = ln( (1 + N) / (1 + df(t)) ) + 1[/bold]\n\n"
@@ -235,9 +225,16 @@ def _step_idf(console: Console, index: InvertedIndex) -> None:
         "ln is the natural log. It compresses the ratio, so a term in 1 document is worth a bit "
         "more than a term in 2, not twice as much."
     )
+    steps.quiz(
+        "goal is in 1 document, rick is in 2. Which has the larger idf?",
+        ["goal", "rick", "they are equal"],
+        0,
+        f"goal: ln(10/2)+1 = {index.smooth_idf('goal'):.3f}. "
+        f"rick: ln(10/3)+1 = {index.smooth_idf('rick'):.3f}. Rarer term, larger idf.",
+    )
 
 
-def _step_tfidf(console: Console, index: InvertedIndex) -> None:
+def _step_tfidf(console: Console, index: InvertedIndex, steps: Session) -> None:
     console.print(
         "[bold]tf-idf(t, d) = (1 + ln tf(t, d)) × idf(t)[/bold]\n\n"
         "It multiplies the answers to two questions:\n"
@@ -257,8 +254,14 @@ def _step_tfidf(console: Console, index: InvertedIndex) -> None:
         table.add_row(str(tf), f"{1 + math.log(tf):.2f}")
     console.print(table)
 
-    console.print(f"Now every term of [cyan]{SPOTLIGHT_DOC}[/cyan], step by step:")
     vector = index.tfidf_vectors[SPOTLIGHT_DOC]
+    steps.guess(
+        "whistle has tf 4 and idf 2.609 in csk-whistle. What is its tf-idf? " "(1 + ln 4 = 2.386)",
+        vector["whistle"],
+        0.05,
+        f"2.386 × 2.609 = {vector['whistle']:.3f}.",
+    )
+    console.print(f"Now every term of [cyan]{SPOTLIGHT_DOC}[/cyan], step by step:")
     table = Table(header_style="bold")
     table.add_column("term t")
     table.add_column("tf", justify="right")
@@ -286,7 +289,9 @@ def _step_tfidf(console: Console, index: InvertedIndex) -> None:
     )
 
 
-def _step_query(console: Console, docs: list[MiniDoc], index: InvertedIndex, query: str) -> None:
+def _step_query(
+    console: Console, docs: list[MiniDoc], index: InvertedIndex, query: str, steps: Session
+) -> None:
     terms = tokenize(query)
     console.print(f'Query: [bold]"{escape(query)}"[/bold]')
     if not terms:
@@ -322,6 +327,13 @@ def _step_query(console: Console, docs: list[MiniDoc], index: InvertedIndex, que
     if not candidates:
         console.print("No document contains any query term, so the result list is empty.")
         return
+    if query == DEFAULT_QUERY:
+        steps.quiz(
+            "Predict before the math: which document ranks first for 'vijay mass'?",
+            ["vijay-leo", "vijay-ghilli", "a tie"],
+            1,
+            "Ghilli says vijay twice and has fewer other terms. The next tables show the numbers.",
+        )
 
     console.print(
         "\n[bold]cosine(q, d) = (q · d) / (|q| × |d|)[/bold]\n"
