@@ -1,0 +1,49 @@
+[project]
+name = "search-dojo"
+version = "0.1.0"
+description = "A CLI dojo for search relevance: sparse encoding, BM25, bi-encoders, hybrid retrieval, reranking, and query expansion."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "loguru>=0.7",
+  "numpy>=2.0",
+  "rich>=13.0",
+  "typer>=0.12",
+]
+
+[project.scripts]
+search-dojo = "search_dojo.cli:app"
+
+[dependency-groups]
+dev = [
+  "black>=24.10",
+  "pytest>=8.0",
+  "ruff>=0.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/search_dojo"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# Black owns wrapping. It will not break long lesson strings, so E501 fights the formatter.
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
