@@ -45,12 +45,13 @@ def lesson(
     belt: str = typer.Argument(help="white, yellow, green, blue, brown, black, or sensei."),
     k1: float | None = typer.Option(None, help="BM25 k1. Used by the yellow belt."),
     b: float | None = typer.Option(None, help="BM25 length penalty b. Used by the yellow belt."),
+    query: str | None = typer.Option(None, help="Your own query for the white belt's step 7."),
+    pause: bool = typer.Option(True, help="Wait for Enter between steps (white belt)."),
 ) -> None:
-    """Run one belt against the Midnight Archive."""
+    """Run one belt."""
     configure_logging()
-    archive = build_archive()
     try:
-        run_lesson(console, archive, belt.strip().lower(), k1=k1, b=b)
+        run_lesson(console, belt.strip().lower(), k1=k1, b=b, query=query, pause=pause)
     except KeyError as exc:
         raise typer.BadParameter(str(exc)) from exc
 

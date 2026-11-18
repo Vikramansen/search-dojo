@@ -6,18 +6,19 @@ from collections.abc import Callable
 
 from rich.console import Console
 
-from search_dojo.archive import Archive
+from search_dojo.archive import Archive, build_archive
 from search_dojo.index import InvertedIndex
 from search_dojo.metrics import recall_at_k, score_run
 from search_dojo.types import Hit
 from search_dojo.view import belt_panel, hits_table, simple_table
+from search_dojo.white import run_white
 
 LessonFn = Callable[[Console, Archive, float | None, float | None], None]
 
 BELT_ORDER = ("white", "yellow", "green", "blue", "brown", "black", "sensei")
 
 BELT_BLURB = {
-    "white": "Sparse vectors: term frequency, document frequency, idf.",
+    "white": "Tokens, tf, df, idf, tf-idf, cosine. Every number by hand.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",
@@ -29,15 +30,22 @@ BELT_BLURB = {
 
 def run_lesson(
     console: Console,
-    archive: Archive,
     belt: str,
     *,
     k1: float | None = None,
     b: float | None = None,
+    query: str | None = None,
+    pause: bool = True,
 ) -> None:
-    """Run one belt. Unknown names raise ``KeyError``."""
+    """Run one belt. Unknown names raise ``KeyError``.
+
+    The white belt runs on the Dojo DB and needs no trained model. The other
+    belts build the archive first.
+    """
+    if belt == "white":
+        run_white(console, query=query, pause=pause)
+        return
     lessons: dict[str, LessonFn] = {
-        "white": lesson_white,
         "yellow": lesson_yellow,
         "green": lesson_green,
         "blue": lesson_blue,
@@ -50,81 +58,7 @@ def run_lesson(
     except KeyError as exc:
         known = ", ".join(BELT_ORDER)
         raise KeyError(f"unknown belt {belt!r}. choose one of: {known}") from exc
-    fn(console, archive, k1, b)
-
-
-def lesson_white(console: Console, archive: Archive, k1: float | None, b: float | None) -> None:
-    belt_panel(
-        console,
-        "white",
-        "sparse encoding",
-        "A document is stored as a sparse vector over the vocabulary. "
-        "A dimension is a term. Most dimensions are 0 and are omitted below.\n\n"
-        "tf = term frequency, the count of a term in one document.\n"
-        "df = document frequency, the number of documents that contain the term.\n"
-        "idf = log((1+N)/(1+df)) + 1. A term in one document gets a larger idf "
-        "than a term in many documents.\n"
-        "tf-idf = (1 + log tf) * idf.\n\n"
-        "The tokenizer drops the token after not, no, never, or without. "
-        "Document dashi contains the phrase 'never milky', so the term milky is not indexed.",
-    )
-    dashi = archive.index.tfidf_vectors["dashi"]
-    rows = []
-    for term, weight in sorted(dashi.items(), key=lambda item: -item[1])[:8]:
-        tf = archive.index.term_tf("dashi", term)
-        rows.append([term, str(tf), f"{archive.index.smooth_idf(term):.2f}", f"{weight:.2f}"])
-    simple_table(
-        console,
-        "Sparse vector for document dashi  ·  zeros omitted",
-        ["term", "tf", "idf", "tf-idf"],
-        rows,
-    )
-    clear_tf = archive.index.term_tf("dashi", "clear")
-    katsu_tf = archive.index.term_tf("dashi", "katsuobushi")
-    console.print(
-        f"Term clear has tf {clear_tf}. Term katsuobushi has tf {katsu_tf}. "
-        "Both have df 1, so they have the same idf. "
-        "The higher tf produces the higher tf-idf. IDF does not saturate tf."
-    )
-
-    spotlight = ("katsuobushi", "ramen", "okapi", "soup", "document", "query", "term")
-    idf_rows = [
-        (term, archive.index.df[term], archive.index.smooth_idf(term))
-        for term in spotlight
-        if term in archive.index.df
-    ]
-    idf_rows.sort(key=lambda item: (-item[2], item[0]))
-    simple_table(
-        console,
-        "idf by term",
-        ["term", "df", "idf"],
-        [[term, str(df), f"{idf:.2f}"] for term, df, idf in idf_rows],
-    )
-    if "katsuobushi" in archive.index.df and "document" in archive.index.df:
-        rare_df = archive.index.df["katsuobushi"]
-        common_df = archive.index.df["document"]
-        console.print(
-            f"Term katsuobushi has df {rare_df}, idf {archive.index.smooth_idf('katsuobushi'):.2f}. "
-            f"Term document has df {common_df}, idf {archive.index.smooth_idf('document'):.2f}."
-        )
-
-    query = "ramen"
-    console.print(f'\n[bold]Query[/bold]  "{query}"')
-    tf_rows = [
-        [archive.by_id[doc_id].title, str(archive.index.term_tf(doc_id, query))]
-        for doc_id in ("repeat-ramen", "shoyu")
-    ]
-    simple_table(console, 'tf of term "ramen" in each matching document', ["document", "tf"], tf_rows)
-    tf_hits = archive.search(query, "tf", k=4)
-    tfidf_hits = archive.search(query, "tfidf", k=4)
-    hits_table(console, tf_hits, archive.by_id, title='cosine of raw tf vectors  ·  query "ramen"')
-    hits_table(console, tfidf_hits, archive.by_id, title='cosine of tf-idf vectors  ·  query "ramen"')
-    _narrate_ramen(console, archive, tf_hits, tfidf_hits)
-    console.print(
-        "\n[bold]Read[/bold]  src/search_dojo/tokenize.py  and  InvertedIndex.tfidf_cosine in index.py\n"
-        "[bold]Hack[/bold]  Add a document to data/scrolls.jsonl and run this belt again. Watch df move."
-    )
-    _ = (k1, b)
+    fn(console, build_archive(), k1, b)
 
 
 def lesson_yellow(console: Console, archive: Archive, k1: float | None, b: float | None) -> None:
@@ -153,7 +87,10 @@ def lesson_yellow(console: Console, archive: Archive, k1: float | None, b: float
             score, _ = toy.explain_bm25("dashi", doc_id, k1=1.2, b=b_try)
             rows.append([doc_id, "1.2", f"{b_try:.0f}", f"{score:.3f}"])
     simple_table(
-        console, "Same single term 'dashi'. Only document length changes.", ["document", "k1", "b", "bm25"], rows
+        console,
+        "Same single term 'dashi'. Only document length changes.",
+        ["document", "k1", "b", "bm25"],
+        rows,
     )
     once, _ = toy.explain_bm25("dashi", "once", k1=1.2, b=0.0)
     spam, _ = toy.explain_bm25("dashi", "spam", k1=1.2, b=0.0)
@@ -474,29 +411,6 @@ def show_boss(console: Console, archive: Archive, k: int | None = None) -> None:
     console.print(f"mean recall@{cutoff}   {recall_bits}")
     best = max(reports, key=lambda report: (report.mean_ndcg, report.mean_recall, report.name))
     console.print(f"Highest mean NDCG: [bold]{best.name}[/bold] at {best.mean_ndcg:.2f}")
-
-
-def _narrate_ramen(console: Console, archive: Archive, tf_hits: list[Hit], tfidf_hits: list[Hit]) -> None:
-    high = archive.index.term_tf("repeat-ramen", "ramen")
-    low = archive.index.term_tf("shoyu", "ramen")
-    if _rank_of(tf_hits, "repeat-ramen") < _rank_of(tf_hits, "shoyu"):
-        console.print(
-            f"Cosine on raw tf ranks the document with tf(ramen)={high} "
-            f"above the document with tf(ramen)={low}."
-        )
-    if _rank_of(tfidf_hits, "repeat-ramen") < _rank_of(tfidf_hits, "shoyu"):
-        console.print(
-            "Cosine on tf-idf does the same. Both documents contain the term ramen, "
-            "so both receive that term's idf. The larger tf still wins. "
-            "BM25 is what saturates tf. Next command: lesson yellow."
-        )
-
-
-def _rank_of(hits: list[Hit], doc_id: str) -> int:
-    for index, hit in enumerate(hits):
-        if hit.doc_id == doc_id:
-            return index
-    return 999
 
 
 def _recall(hits: list[Hit], qrels: dict[str, int]) -> float:

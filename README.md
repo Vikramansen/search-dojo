@@ -27,7 +27,7 @@ uv run search-dojo logs
 
 | Belt | You will feel |
 | --- | --- |
-| white | Tokens, postings, tf, df, idf. A document is a sparse vector. |
+| white | On a 9-document database (`data/dojo_db.jsonl`: Warriors, Man City, CSK, Rick and Morty, Vijay films): tokens, tf, df, the inverted index, idf, tf-idf, and cosine, every number worked by hand. `--query "rick pickle"` swaps in your own query, `--no-pause` prints it all at once. |
 | yellow | Okapi BM25. `k1` bends repetition. `b` charges rent for length. Every term has a contribution you can read. |
 | green | A bi-encoder small enough to train on a laptop: shared embedding table, mean pool, cosine. The win is a paraphrase, not a copied query. |
 | blue | Hybrid retrieval. Reciprocal rank fusion, because BM25 and cosine do not share a unit. |
