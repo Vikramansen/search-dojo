@@ -299,6 +299,19 @@ def leave_one_out(
 
 
 @lru_cache(maxsize=1)
+def trained_rankings() -> dict[str, list[str]]:
+    """LambdaRank trained on every judged query; the reranked candidates per query id."""
+    config = LtrConfig()
+    data = build_dataset(build_world(), config)
+    x_z = standardize(data.x)[0]
+    weights, _ = fit_pairwise(x_z, data.y, data.qid, config, lambdas=True)
+    return {
+        item.query.id: rerank(item, x_z[data.qid == i] @ weights) if item.doc_ids else []
+        for i, item in enumerate(data.queries)
+    }
+
+
+@lru_cache(maxsize=1)
 def _full_results() -> dict[ModelName, list[float]]:
     config = LtrConfig()
     return leave_one_out(build_dataset(build_world(), config), config)
