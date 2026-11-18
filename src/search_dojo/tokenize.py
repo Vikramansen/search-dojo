@@ -9,6 +9,7 @@ notice.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 
@@ -155,6 +156,33 @@ def tokenize(text: str, *, drop_negated: bool = True) -> list[str]:
         kept.append(stem(token))
         index += 1
     return kept
+
+
+@dataclass(frozen=True, slots=True)
+class TokenTrace:
+    """Each stage of ``tokenize``, kept so a lesson can print them."""
+
+    lowered: str
+    split: list[str]
+    without_stop: list[str]
+    stemmed: list[str]
+
+
+def trace_tokenize(text: str) -> TokenTrace:
+    """Run the tokenizer one stage at a time.
+
+    Matches ``tokenize`` for text without negation words. The negation rule
+    is left out so the four stages stay readable.
+    """
+    lowered = text.lower()
+    split = _TOKEN.findall(lowered)
+    without_stop = [token for token in split if token not in STOP]
+    return TokenTrace(
+        lowered=lowered,
+        split=split,
+        without_stop=without_stop,
+        stemmed=[stem(token) for token in without_stop],
+    )
 
 
 def unique_terms(text: str) -> list[str]:
