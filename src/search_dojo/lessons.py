@@ -17,7 +17,7 @@ LessonFn = Callable[[Console, Archive, float | None, float | None], None]
 BELT_ORDER = ("white", "yellow", "green", "blue", "brown", "black", "sensei")
 
 BELT_BLURB = {
-    "white": "Sparse encoding. A scroll is a bag of spikes.",
+    "white": "Sparse vectors: term frequency, document frequency, idf.",
     "yellow": "BM25. Repetition bends. Length costs.",
     "green": "Bi-encoder. Two towers, one table, cosine at the end.",
     "blue": "Hybrid. Let each retriever cover the other's miss.",
@@ -58,43 +58,71 @@ def lesson_white(console: Console, archive: Archive, k1: float | None, b: float 
         console,
         "white",
         "sparse encoding",
-        "A scroll is not a paragraph in the index. It is a vector that is zero almost everywhere, "
-        "with a weight on each term it actually used. Inverse document frequency is the volume knob: "
-        "words the whole archive shares get quiet, words that show up once get loud.\n\n"
-        "The tokenizer also drops the word after not, no, never, or without. "
-        "Dashi says 'never milky', so milky is not in that scroll.",
+        "A document is stored as a sparse vector over the vocabulary. "
+        "A dimension is a term. Most dimensions are 0 and are omitted below.\n\n"
+        "tf = term frequency, the count of a term in one document.\n"
+        "df = document frequency, the number of documents that contain the term.\n"
+        "idf = log((1+N)/(1+df)) + 1. A term in one document gets a larger idf "
+        "than a term in many documents.\n"
+        "tf-idf = (1 + log tf) * idf.\n\n"
+        "The tokenizer drops the token after not, no, never, or without. "
+        "Document dashi contains the phrase 'never milky', so the term milky is not indexed.",
     )
     dashi = archive.index.tfidf_vectors["dashi"]
     rows = []
     for term, weight in sorted(dashi.items(), key=lambda item: -item[1])[:8]:
         tf = archive.index.term_tf("dashi", term)
         rows.append([term, str(tf), f"{archive.index.smooth_idf(term):.2f}", f"{weight:.2f}"])
-    simple_table(console, "Dashi, the spikes that survived", ["term", "tf", "idf", "tf-idf"], rows)
-
-    idf_rows = sorted(
-        (
-            (term, archive.index.df[term], archive.index.smooth_idf(term))
-            for term in archive.index.df
-        ),
-        key=lambda item: -item[2],
-    )
-    show = idf_rows[:5] + idf_rows[-4:]
     simple_table(
         console,
-        "IDF, rare at the top, everywhere at the bottom",
-        ["term", "df", "idf"],
-        [[term, str(df), f"{idf:.2f}"] for term, df, idf in show],
+        "Sparse vector for document dashi  ·  zeros omitted",
+        ["term", "tf", "idf", "tf-idf"],
+        rows,
+    )
+    clear_tf = archive.index.term_tf("dashi", "clear")
+    katsu_tf = archive.index.term_tf("dashi", "katsuobushi")
+    console.print(
+        f"Term clear has tf {clear_tf}. Term katsuobushi has tf {katsu_tf}. "
+        "Both have df 1, so they have the same idf. "
+        "The higher tf produces the higher tf-idf. IDF does not saturate tf."
     )
 
+    spotlight = ("katsuobushi", "ramen", "okapi", "soup", "document", "query", "term")
+    idf_rows = [
+        (term, archive.index.df[term], archive.index.smooth_idf(term))
+        for term in spotlight
+        if term in archive.index.df
+    ]
+    idf_rows.sort(key=lambda item: (-item[2], item[0]))
+    simple_table(
+        console,
+        "idf by term",
+        ["term", "df", "idf"],
+        [[term, str(df), f"{idf:.2f}"] for term, df, idf in idf_rows],
+    )
+    if "katsuobushi" in archive.index.df and "document" in archive.index.df:
+        rare_df = archive.index.df["katsuobushi"]
+        common_df = archive.index.df["document"]
+        console.print(
+            f"Term katsuobushi has df {rare_df}, idf {archive.index.smooth_idf('katsuobushi'):.2f}. "
+            f"Term document has df {common_df}, idf {archive.index.smooth_idf('document'):.2f}."
+        )
+
     query = "ramen"
+    console.print(f'\n[bold]Query[/bold]  "{query}"')
+    tf_rows = [
+        [archive.by_id[doc_id].title, str(archive.index.term_tf(doc_id, query))]
+        for doc_id in ("repeat-ramen", "shoyu")
+    ]
+    simple_table(console, 'tf of term "ramen" in each matching document', ["document", "tf"], tf_rows)
     tf_hits = archive.search(query, "tf", k=4)
     tfidf_hits = archive.search(query, "tfidf", k=4)
-    hits_table(console, tf_hits, archive.by_id, title="raw tf cosine  ·  ramen")
-    hits_table(console, tfidf_hits, archive.by_id, title="tf-idf cosine  ·  ramen")
-    _narrate_ramen(console, tf_hits, tfidf_hits)
+    hits_table(console, tf_hits, archive.by_id, title='cosine of raw tf vectors  ·  query "ramen"')
+    hits_table(console, tfidf_hits, archive.by_id, title='cosine of tf-idf vectors  ·  query "ramen"')
+    _narrate_ramen(console, archive, tf_hits, tfidf_hits)
     console.print(
         "\n[bold]Read[/bold]  src/search_dojo/tokenize.py  and  InvertedIndex.tfidf_cosine in index.py\n"
-        "[bold]Hack[/bold]  Add a scroll to data/scrolls.jsonl and run this belt again. Watch df move."
+        "[bold]Hack[/bold]  Add a document to data/scrolls.jsonl and run this belt again. Watch df move."
     )
     _ = (k1, b)
 
@@ -107,8 +135,8 @@ def lesson_yellow(console: Console, archive: Archive, k1: float | None, b: float
         "yellow",
         "BM25",
         "Term frequency is a loudmouth. BM25 saturates it with k1, so the 20th repeat of a word "
-        "adds a sliver. It also charges rent for length with b: a long scroll that mentions a term "
-        "once scores below a short scroll with the same single mention.\n\n"
+        "adds a sliver. Parameter b charges for document length: a long document that mentions a term "
+        "once scores below a short document with the same tf.\n\n"
         "idf(t) * tf * (k1 + 1) / (tf + k1 * (1 - b + b * |D| / avgdl))",
     )
     toy = InvertedIndex(
@@ -125,7 +153,7 @@ def lesson_yellow(console: Console, archive: Archive, k1: float | None, b: float
             score, _ = toy.explain_bm25("dashi", doc_id, k1=1.2, b=b_try)
             rows.append([doc_id, "1.2", f"{b_try:.0f}", f"{score:.3f}"])
     simple_table(
-        console, "Same single 'dashi'. Only length changes.", ["scroll", "k1", "b", "bm25"], rows
+        console, "Same single term 'dashi'. Only document length changes.", ["document", "k1", "b", "bm25"], rows
     )
     once, _ = toy.explain_bm25("dashi", "once", k1=1.2, b=0.0)
     spam, _ = toy.explain_bm25("dashi", "spam", k1=1.2, b=0.0)
@@ -169,12 +197,12 @@ def lesson_green(console: Console, archive: Archive, k1: float | None, b: float 
         console,
         "green",
         "bi-encoder",
-        "A bi-encoder embeds the query in one tower and the scroll in another. Here the towers "
+        "A bi-encoder embeds the query in one tower and the document in another. Here the towers "
         "share one embedding table. A text is the average of its token vectors. Cosine is the score. "
         "Scroll vectors are computed once, when the archive boots, which is why this can sit in front "
         "of millions of documents later.\n\n"
         "Bag-of-words still loves a document that copies the query. The win is the vocabulary gap: "
-        "words the scroll never used, sitting near words it did. Product codes like sku1844 are left "
+        "words the document never used, sitting near words it did. Product codes like sku1844 are left "
         "out of the table on purpose. A real model would also miss them. BM25 will not.",
     )
     console.print(f"Training loss  {first:.3f}  →  {last:.3f}   seed {archive.config.seed}")
@@ -218,7 +246,7 @@ def lesson_blue(console: Console, archive: Archive, k1: float | None, b: float |
         "hybrid retrieval",
         "BM25 and cosine are not in the same unit, so adding the raw scores is a category error. "
         "Reciprocal rank fusion ignores the numbers and trusts the order: each list contributes "
-        "1 / (k + rank). A scroll both lists rank near the top beats a scroll only one list found.\n\n"
+        "1 / (k + rank). A document both lists rank near the top beats a document only one list found.\n\n"
         "The mixed query is a permit code plus a paraphrase of the broth. The code is a rare string "
         "the tower was told to forget. The paraphrase is a neighborhood the inverted index has never seen.",
     )
@@ -249,12 +277,12 @@ def lesson_brown(console: Console, archive: Archive, k1: float | None, b: float 
         console,
         "brown",
         "rerank",
-        "A cross-encoder reads the query and the scroll together. Sharp, slow, and only worth it "
+        "A cross-encoder reads the query and the document together. Sharp, slow, and only worth it "
         "on the top of a fast list. This belt is that slot with the weights written down: BM25, "
         "cosine, query coverage, a title hit, an exact phrase, and unique_ratio (unique tokens "
         "divided by length). unique_ratio is the anti-spam feature. The chant is the query four times.\n\n"
         "Min-max happens inside the candidate list, so a weight is a vote, not a raw multiplier. "
-        "Zero a feature and the top scroll moves, or it does not. That is feature development.",
+        "Zero a feature and the top document moves, or it does not. That is feature development.",
     )
     challenge = archive.challenge("spam-chant")
     console.print(f"[bold]{challenge.query}[/bold]  {challenge.note}")
@@ -266,7 +294,7 @@ def lesson_brown(console: Console, archive: Archive, k1: float | None, b: float 
     if reranked and reranked[0].features:
         simple_table(
             console,
-            "Normalized features of the new top scroll",
+            "Normalized features of the new top document",
             ["feature", "value", "weight"],
             [
                 [
@@ -285,10 +313,10 @@ def lesson_brown(console: Console, archive: Archive, k1: float | None, b: float 
         title = archive.by_id[top[0].doc_id].title if top else "(none)"
         ablation_rows.append([name, title])
     simple_table(
-        console, "Ablation  ·  feature zeroed, new #1", ["zeroed", "top scroll"], ablation_rows
+        console, "Ablation  ·  feature zeroed, new #1", ["zeroed", "top document"], ablation_rows
     )
     console.print(
-        "\nIf the broth scroll was outside the first-stage window, this table could not have saved it. "
+        "\nIf the relevant document was outside the first-stage window, this table could not have saved it. "
         "Rerank reorders. It does not retrieve.\n"
         "[bold]Read[/bold]  src/search_dojo/rerank.py\n"
         "[bold]Hack[/bold]  the weights tuple in src/search_dojo/config.py"
@@ -340,7 +368,7 @@ def lesson_black(console: Console, archive: Archive, k1: float | None, b: float 
     console.print(f"\n[bold]Feedback[/bold]  {poison.query}")
     console.print("PRF terms  " + (", ".join(feedback) if feedback else "(none)"))
     console.print(
-        "If bleach showed up, the spill scroll poisoned the rewrite. "
+        "If bleach showed up, the spill document poisoned the rewrite. "
         "That is why the pipeline leaves PRF off."
     )
 
@@ -372,9 +400,9 @@ def lesson_sensei(console: Console, archive: Archive, k1: float | None, b: float
         "  -> BM25 list and bi-encoder list\n"
         "  -> reciprocal rank fusion\n"
         "  -> feature rerank\n"
-        "  -> top scrolls\n\n"
-        "On a question-answering platform the generator answers from whatever you retrieved. "
-        "A wrong top scroll becomes a wrong answer. The boss fight is that fact, measured.",
+        "  -> top documents\n\n"
+        "On a question-answering platform the generator answers from the documents you retrieved. "
+        "A wrong top document becomes a wrong answer. The boss fight is that fact, measured.",
     )
     show_logs(console, archive)
     console.print()
@@ -448,20 +476,19 @@ def show_boss(console: Console, archive: Archive, k: int | None = None) -> None:
     console.print(f"Highest mean NDCG: [bold]{best.name}[/bold] at {best.mean_ndcg:.2f}")
 
 
-def _narrate_ramen(console: Console, tf_hits: list[Hit], tfidf_hits: list[Hit]) -> None:
-    tf_rank = _rank_of(tf_hits, "repeat-ramen")
-    real_rank = _rank_of(tf_hits, "shoyu")
-    if tf_rank < real_rank:
+def _narrate_ramen(console: Console, archive: Archive, tf_hits: list[Hit], tfidf_hits: list[Hit]) -> None:
+    high = archive.index.term_tf("repeat-ramen", "ramen")
+    low = archive.index.term_tf("shoyu", "ramen")
+    if _rank_of(tf_hits, "repeat-ramen") < _rank_of(tf_hits, "shoyu"):
         console.print(
-            "Raw term frequency puts the stall sign above the shoyu bowl. "
-            "The sign says ramen and means nothing else."
+            f"Cosine on raw tf ranks the document with tf(ramen)={high} "
+            f"above the document with tf(ramen)={low}."
         )
-    tfidf_sign = _rank_of(tfidf_hits, "repeat-ramen")
-    tfidf_bowl = _rank_of(tfidf_hits, "shoyu")
-    if tfidf_sign < tfidf_bowl:
+    if _rank_of(tfidf_hits, "repeat-ramen") < _rank_of(tfidf_hits, "shoyu"):
         console.print(
-            "TF-IDF still hears the sign. It turned the volume of common words down. "
-            "It did not saturate repetition. That is the next belt."
+            "Cosine on tf-idf does the same. Both documents contain the term ramen, "
+            "so both receive that term's idf. The larger tf still wins. "
+            "BM25 is what saturates tf. Next command: lesson yellow."
         )
 
 

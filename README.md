@@ -2,7 +2,7 @@
 
 A command-line gym for search relevance. One archive, seven belts, and a boss fight that scores the whole pipeline.
 
-The Midnight Archive answers questions from scrolls. Retrieve the wrong scroll and the answer is wrong. That is the job.
+The collection is a small document set with graded queries. Retrieve the wrong document and the answer is wrong. That is the job.
 
 ## Run it
 
@@ -27,11 +27,11 @@ uv run search-dojo logs
 
 | Belt | You will feel |
 | --- | --- |
-| white | Tokens, postings, tf, idf. A scroll is a sparse vector. |
+| white | Tokens, postings, tf, df, idf. A document is a sparse vector. |
 | yellow | Okapi BM25. `k1` bends repetition. `b` charges rent for length. Every term has a contribution you can read. |
 | green | A bi-encoder small enough to train on a laptop: shared embedding table, mean pool, cosine. The win is a paraphrase, not a copied query. |
 | blue | Hybrid retrieval. Reciprocal rank fusion, because BM25 and cosine do not share a unit. |
-| brown | A feature reranker and an ablation. Zero a weight, watch the top scroll move. |
+| brown | A feature reranker and an ablation. Zero a weight, watch the top document move. |
 | black | Boolean query expressions (phrases need positions), query expansion, and why pseudo-relevance feedback can poison the second pass. |
 | sensei | Query logs, the veto on bad reformulations, and the boss scoreboard. |
 
@@ -43,12 +43,12 @@ query
   -> BM25 list and bi-encoder list
   -> reciprocal rank fusion
   -> feature rerank
-  -> top scrolls
+  -> top documents
 ```
 
 ## Where to hack
 
-- `data/scrolls.jsonl` — the archive. Tags are not indexed. Add them to the body if you want them searchable.
+- `data/scrolls.jsonl` — the documents. Tags are not indexed. Add them to the body if you want them searchable.
 - `data/drills.jsonl` — practice triples for the tower.
 - `data/challenges.jsonl` — the exam. Grades are 2 (the answer) or 1 (a cousin).
 - `data/query_logs.jsonl` — sessions. Order inside a session is the reformulation.
@@ -59,7 +59,7 @@ query
 
 ## The prep list, and where it lives
 
-- **Relevance on a QA platform.** The `qa-impact` scroll, and the sensei belt. A wrong top scroll becomes a wrong answer.
+- **Relevance on a QA platform.** Document `qa-impact`, and the sensei belt. A wrong top document becomes a wrong answer.
 - **LLMs inside search.** `llm_rewrite` and `prompts/rewrite.txt`. The model rewrites. The index still retrieves. The stand-in in the black belt shows the socket without a network call.
 - **IR and learned ranking.** BM25, the tiny bi-encoder, the linear feature reranker.
 - **Text, NLP, retrieval, ranking.** `tokenize.py`, `index.py`, `rerank.py`.

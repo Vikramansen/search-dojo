@@ -1,13 +1,13 @@
 """Inverted index, sparse vectors, and Okapi BM25.
 
 This is the yellow belt and the white belt in one file. A posting list maps
-a term to the scrolls that contain it. BM25 walks those lists and adds a
+a term to the documents that contain it. BM25 walks those lists and adds a
 contribution per query term:
 
     idf(t) * tf * (k1 + 1) / (tf + k1 * (1 - b + b * |D| / avgdl))
 
 ``k1`` bends term frequency so the 20th repeat barely matters. ``b`` makes a
-long scroll work harder for the same single mention.
+long document work harder for the same single mention.
 """
 
 from __future__ import annotations

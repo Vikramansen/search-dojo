@@ -18,7 +18,7 @@
 {"query": "unusual terms get a louder weight", "positive": "tfidf-scroll", "negatives": ["repeat-ramen", "shoyu"]}
 {"query": "most dimensions stay zero", "positive": "sparse-scroll", "negatives": ["biencoder-scroll", "cross-scroll"]}
 {"query": "posting list positions", "positive": "index-scroll", "negatives": ["sparse-scroll", "expr-scroll"]}
-{"query": "wrong top scroll wrong answer", "positive": "qa-impact", "negatives": ["llm-search", "ndcg-scroll"]}
+{"query": "wrong top document wrong answer", "positive": "qa-impact", "negatives": ["llm-search", "ndcg-scroll"]}
 {"query": "models rewrite queries and draft answers", "positive": "llm-search", "negatives": ["qa-impact", "expand-scroll"]}
 {"query": "length penalty parameter b", "positive": "length-scroll", "negatives": ["repeat-ramen", "sparse-scroll"]}
 {"query": "paraphrases cross a vocabulary gap", "positive": "synonym-gap", "negatives": ["sparse-scroll", "index-scroll"]}

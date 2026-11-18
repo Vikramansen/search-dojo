@@ -41,14 +41,14 @@ def hits_table(
     table = Table(title=title, header_style="bold", show_lines=False)
     table.add_column("#", justify="right", style="dim", width=3)
     table.add_column("score", justify="right", width=8)
-    table.add_column("scroll")
+    table.add_column("document")
     table.add_column("why")
     for rank, hit in enumerate(hits[:k], start=1):
-        scroll = by_id.get(hit.doc_id)
-        name = scroll.title if scroll else hit.doc_id
+        document = by_id.get(hit.doc_id)
+        name = document.title if document else hit.doc_id
         table.add_row(str(rank), f"{hit.score:.3f}", name, hit.reason)
     if not hits:
-        table.add_row("-", "-", "(silence)", "no scroll scored above zero")
+        table.add_row("-", "-", "(no hit)", "no document scored above zero")
     console.print(table)
 
 

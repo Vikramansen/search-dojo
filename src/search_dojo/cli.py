@@ -64,9 +64,9 @@ def ask(
         "-r",
         help="tf, tfidf, bm25, dense, hybrid, rerank, expand, pipeline, or expr.",
     ),
-    k: int = typer.Option(5, "--k", help="How many scrolls to show."),
+    k: int = typer.Option(5, "--k", help="How many documents to show."),
 ) -> None:
-    """Rank scrolls for one question."""
+    """Rank documents for one query."""
     configure_logging()
     name = retriever.strip().lower()
     if name not in RETRIEVERS:
